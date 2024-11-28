@@ -1,0 +1,105 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello FilmController!{% endblock %}
+
+{% block body %}
+<h1 class="text-xl font-bold text-white px-2">Movies</h1>
+<div class="grid grid-cols-7 gap-x-1 gap-y-1 px-2">
+    {% for film in films %}
+        <!-- Film Card -->
+        <div class="bg-gray-800 w-44 shadow-lg">
+            <div class="relative">
+                <!-- Clickable Image -->
+                <img 
+                    src="{{ film.urlImage }}" 
+                    alt="{{ film.titre }}" 
+                    class=" w-full h-64 object-cover cursor-pointer"
+                    id="openModalButton-{{ loop.index }}"
+                >
+                <span class="absolute top-2 left-2 px-2 py-1 rounded  text-white text-lg font-bold">HD</span>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div 
+            id="myModal-{{ loop.index }}" 
+            class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center hidden z-50"
+        >
+            <div class="bg-white p-6 rounded shadow-lg max-w-md w-full relative">
+                <!-- Modal Content -->
+                <h2 class="text-xl font-bold mb-4 text-gray-800 text-center">{{ film.titre }}</h2>
+                
+                <!-- Adjusted Image Size -->
+                <div class="flex justify-center mb-4">
+                    <img src="{{ film.urlImage }}" 
+                         alt="{{ film.titre }}" 
+                         class="w-80 h-80 object-cover mb-4 rounded-lg shadow-lg">
+                </div>
+
+                <!-- Add Button -->
+                
+                <div class="flex justify-start">
+                    <button 
+                        class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition duration-300"
+                        id="addButton-{{ loop.index }}"
+                    >
+                        Add
+                    </button>
+                </div>
+
+                <!-- Close Button -->
+                <div class="flex justify-end">
+                    <button 
+                        id="closeModalButton-{{ loop.index }}" 
+                        class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition duration-300"
+                    >
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <p class="col-span-full text-red-500">No films found.</p>
+    {% endfor %}
+</div>
+
+<script>
+  // Open Modal
+  document.querySelectorAll('[id^="openModalButton-"]').forEach((button, index) => {
+    button.addEventListener('click', function () {
+        document.getElementById(`myModal-${index + 1}`).classList.remove('hidden');
+        document.body.classList.add('no-scroll'); // Disable scrolling
+    });
+  });
+
+  // Close Modal
+  document.querySelectorAll('[id^="closeModalButton-"]').forEach((button, index) => {
+    button.addEventListener('click', function () {
+        document.getElementById(`myModal-${index + 1}`).classList.add('hidden');
+        document.body.classList.remove('no-scroll'); // Re-enable scrolling
+    });
+  });
+
+  // Optional: Close modal when clicking outside
+  document.querySelectorAll('[id^="myModal-"]').forEach((modal) => {
+    modal.addEventListener('click', function (event) {
+        if (event.target === event.currentTarget) {
+            modal.classList.add('hidden');
+            document.body.classList.remove('no-scroll'); // Re-enable scrolling
+        }
+    });
+  });
+
+  // Add Button functionality (example: log to console)
+  document.querySelectorAll('[id^="addButton-"]').forEach((button, index) => {
+    button.addEventListener('click', function () {
+        // Example: log the film added (you can replace this with your own logic)
+        console.log('film Added:');
+        // Optionally, close the modal after adding the film
+        document.getElementById(`myModal-${index + 1}`).classList.add('hidden');
+        document.body.classList.remove('no-scroll');
+    });
+  });
+</script>
+
+{% endblock %}
