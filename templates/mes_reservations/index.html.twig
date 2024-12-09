@@ -1,10 +1,9 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello FilmController!{% endblock %}
+{% block title %}My Reservations{% endblock %}
 
 {% block body %}
 
-{# NAVBAR #}
 <nav class="bg-gray-700 shadow-md">
     <div class="container mx-auto px-12 flex justify-between items-center h-16">
         <!-- Logo Section -->
@@ -15,8 +14,8 @@
         <!-- Buttons Section -->
         <div class="space-x-4 flex items-center">
             <!-- Reservations Link -->
-            <a href="{{ path('mes_reservations') }}" class="px-4 py-2 text-white hover:underline">
-                Reservations
+            <a href="{{ path('app_film') }}" class="px-4 py-2 text-white hover:underline">
+                Films
             </a>
 
             {% if is_granted('IS_AUTHENTICATED_FULLY') %}
@@ -40,71 +39,35 @@
         </div>
     </div>
 </nav>
-{# NAVBAR #}
 
-<h1 class="text-xl font-bold text-white px-2">Movies</h1>
-<div class="grid grid-cols-7 gap-x-1 gap-y-1 px-2">
-    {% for film in films %}
-        <!-- Film Card -->
-        <div class="bg-gray-800 w-44 shadow-lg">
-            <div class="relative">
-                <!-- Clickable Image -->
-                <img 
-                    src="{{ film.urlImage }}" 
-                    alt="{{ film.titre }}" 
-                    class=" w-full h-64 object-cover cursor-pointer"
-                    id="openModalButton-{{ loop.index }}"
-                >
-                <span class="absolute top-2 left-2 px-2 py-1 rounded text-white text-lg font-bold">HD</span>
-            </div>
+    <div class="bg-white">
+        <div class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
+            <h2 class="text-2xl font-bold tracking-tight text-gray-900">My Reservations</h2>
+
+            {% if reservations is empty %}
+                <p class="mt-4 text-lg text-gray-500">You don't have any reservations.</p>
+            {% else %}
+                <div class="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+                    {% for reservation in reservations %}
+                        <div class="group relative bg-white border rounded-md shadow-lg p-4">
+                             <img src="{{ reservation.film.urlImage }}" 
+                                class="w-80 h-80 object-cover mb-4 rounded-lg shadow-lg">
+                            <h3 class="text-sm font-semibold text-gray-700">{{ reservation.film.titre }}</h3>
+                            <p class="mt-1 text-sm text-gray-500">{{ reservation.cinema.nom }}</p>
+                            <p class="mt-1 text-sm text-gray-500">{{ reservation.dateReservation|date('Y-m-d') }}</p>
+                            <div class="mt-4">
+                                <a href="{{ path('reservation_cancel', {'id': reservation.id}) }}"
+                                   class="text-indigo-600 hover:text-indigo-500 font-semibold">
+                                    Cancel
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
-
-        <!-- Modal -->
-        <div 
-            id="myModal-{{ loop.index }}" 
-            class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center hidden z-50"
-        >
-            <div class="bg-white p-6 rounded shadow-lg max-w-md w-full relative">
-                <!-- Modal Content -->
-                <h2 class="text-xl font-bold mb-4 text-gray-800 text-center">{{ film.titre }}</h2>
-                
-                <!-- Adjusted Image Size -->
-                <div class="flex justify-center mb-4">
-                    <img src="{{ film.urlImage }}" 
-                         alt="{{ film.titre }}" 
-                         class="w-80 h-80 object-cover mb-4 rounded-lg shadow-lg">
-                </div>
-
-                <!-- Add Button -->
-                <div class="flex justify-start">
-                    <button 
-                        class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition duration-300"
-                        id="addButton-{{ loop.index }}"
-                        data-cinema-id="{{ film.cinema.id ?? 0 }}" 
-                        data-film-id="{{ film.id }}" <!-- Film ID -->
-                    >
-                        Add
-                    </button>
-                </div>
-
-                <!-- Close Button -->
-                <div class="flex justify-end">
-                    <button 
-                        id="closeModalButton-{{ loop.index }}" 
-                        class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition duration-300"
-                    >
-                        Close
-                    </button>
-                </div>
-            </div>
-        </div>
-    {% else %}
-        <p class="col-span-full text-red-500">No films found.</p>
-    {% endfor %}
-</div>
-
-<h1 class="text-xl font-bold text-white px-2">Movies</h1>
-
+    </div>
+    
 <footer class="bg-white dark:bg-gray-900">
     <div class="mx-auto w-full max-w-screen-xl p-4 py-6 lg:py-8">
         <div class="md:flex md:justify-between">
@@ -189,90 +152,5 @@
       </div>
     </div>
 </footer>
-
-
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    // Open Modal
-    document.querySelectorAll('[id^="openModalButton-"]').forEach((button, index) => {
-      button.addEventListener('click', () => {
-        const modal = document.getElementById(`myModal-${index + 1}`);
-        if (modal) {
-          modal.classList.remove('hidden');
-          document.body.classList.add('no-scroll'); // Disable scrolling
-        }
-      });
-    });
-
-    // Close Modal
-    document.querySelectorAll('[id^="closeModalButton-"]').forEach((button, index) => {
-      button.addEventListener('click', () => {
-        const modal = document.getElementById(`myModal-${index + 1}`);
-        if (modal) {
-          modal.classList.add('hidden');
-          document.body.classList.remove('no-scroll'); // Re-enable scrolling
-        }
-      });
-    });
-
-    // Close modal when clicking outside
-    document.querySelectorAll('[id^="myModal-"]').forEach((modal) => {
-      modal.addEventListener('click', (event) => {
-        if (event.target === event.currentTarget) {
-          modal.classList.add('hidden');
-          document.body.classList.remove('no-scroll'); // Re-enable scrolling
-        }
-      });
-    });
-
-        // Add reservation on "Add" button click
-    document.querySelectorAll('button[data-film-id]').forEach(button => {
-        button.addEventListener('click', function () {
-            const filmId = this.getAttribute('data-film-id');
-            const cinemaId = this.getAttribute('data-cinema-id');
-
-            console.log("Film ID:", filmId);
-            console.log("Cinema ID:", cinemaId); // Debugging
-
-            // Check if the cinemaId is valid
-            if (cinemaId && cinemaId !== "0") {
-                // Send reservation request
-                fetch('/reservation/add', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        film_id: filmId,
-                        cinema_id: cinemaId
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        alert(data.error);
-                    } else {
-                        alert('Reservation added successfully!');
-                        // Optionally close the modal after success
-                        const modal = document.getElementById(`myModal-${button.getAttribute('id').split('-')[1]}`);
-                        if (modal) {
-                            modal.classList.add('hidden');
-                            document.body.classList.remove('no-scroll');
-                        }
-                    }
-                })
-                .catch(err => {
-                    console.error('Error:', err);
-                    alert('There was an error processing your reservation. Please try again.');
-                });
-            } else {
-                alert("Please select a valid cinema for this booking.");
-            }
-        });
-    });
-});
-</script>
-
-
-
+    
 {% endblock %}

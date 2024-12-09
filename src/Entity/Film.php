@@ -40,9 +40,20 @@ class Film
     #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'film')]
     private Collection $filmReservations;
 
+    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'cinemaReservations')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?self $cinema = null;
+
+    /**
+     * @var Collection<int, self>
+     */
+    #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'cinema')]
+    private Collection $cinemaReservations;
+
     public function __construct()
     {
         $this->filmReservations = new ArrayCollection();
+        $this->cinemaReservations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -146,6 +157,48 @@ class Film
             // set the owning side to null (unless already changed)
             if ($filmReservation->getFilm() === $this) {
                 $filmReservation->setFilm(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getCinema(): ?self
+    {
+        return $this->cinema;
+    }
+
+    public function setCinema(?self $cinema): static
+    {
+        $this->cinema = $cinema;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getCinemaReservations(): Collection
+    {
+        return $this->cinemaReservations;
+    }
+
+    public function addCinemaReservation(self $cinemaReservation): static
+    {
+        if (!$this->cinemaReservations->contains($cinemaReservation)) {
+            $this->cinemaReservations->add($cinemaReservation);
+            $cinemaReservation->setCinema($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCinemaReservation(self $cinemaReservation): static
+    {
+        if ($this->cinemaReservations->removeElement($cinemaReservation)) {
+            // set the owning side to null (unless already changed)
+            if ($cinemaReservation->getCinema() === $this) {
+                $cinemaReservation->setCinema(null);
             }
         }
 
